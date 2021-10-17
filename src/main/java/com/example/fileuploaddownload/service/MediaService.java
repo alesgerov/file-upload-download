@@ -1,16 +1,15 @@
 package com.example.fileuploaddownload.service;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.Url;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.fileuploaddownload.config.FileConfig;
 import com.example.fileuploaddownload.entity.FileTable;
 import com.example.fileuploaddownload.exception.FileNotFoundEXC;
+import com.example.fileuploaddownload.exception.StatusException;
 import com.example.fileuploaddownload.model.Media;
 import com.example.fileuploaddownload.model.UploadStatus;
 import com.example.fileuploaddownload.repository.MediaRepository;
 import com.example.fileuploaddownload.utility.FileUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.FileUrlResource;
@@ -42,23 +41,35 @@ public class MediaService implements MediaRepository {
         this.fileUtil = fileUtil;
     }
 
-
-    @Override
-    public Media saveMedia(MultipartFile file) {
+    private Media saveUtils(MultipartFile file, Media media) {
         try {
             String extension = FileUtil.getExtension(file.getOriginalFilename());
             String name = FileUtil.generateName() + extension;
             String newName = fileConfig.getLocalUrl() + name;
             Files.copy(file.getInputStream(), Paths.get(newName), StandardCopyOption.REPLACE_EXISTING);
-            Media media = new Media();
             media.setSize(file.getSize());
             media.setName(name);
             media.setContentType(file.getContentType());
-            return service.saveMedia(media);
-
+            Media media1 = service.saveMedia(media);
+            if (media1 != null) {
+                return saveMediaCloudinary(media);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public Media saveMedia(MultipartFile file) {
+        Media media = new Media();
+        return saveUtils(file, media);
+    }
+
+
+
+    @Override
+    public Media updateMedia(MultipartFile file, Media media) {
         return null;
     }
 
@@ -83,8 +94,8 @@ public class MediaService implements MediaRepository {
         Resource resource = new FileSystemResource(fileConfig.getLocalUrl() + file.getLocation());
         if (file.getCdnUrl() != null) {
             media.setCdnUrl(file.getCdnUrl());
-            URL url=new URL(media.getCdnUrl());
-            resource=new FileUrlResource(url);
+            URL url = new URL(media.getCdnUrl());
+            resource = new FileUrlResource(url);
         }
         System.out.println(file.getLocation());
         media.setName(file.getLocation());
@@ -97,13 +108,21 @@ public class MediaService implements MediaRepository {
     @SneakyThrows
     public Media saveMediaCloudinary(Media media) {
         Cloudinary cloudinary = fileUtil.generateCloudinary();
-        if (media.getStatus() == UploadStatus.PENDING) {
-            Map map=cloudinary.uploader().upload(new File(fileConfig.getLocalUrl()+media.getName()),
-                    ObjectUtils.asMap("public_id",media.getName(),"folder","testfiles"));
-            media.setCdnUrl(map.get("secure_url").toString());
-            media.setStatus(UploadStatus.SUCCESS);
+        try {
+            if (media.getStatus() == UploadStatus.PENDING) {
+                Map map = cloudinary.uploader().upload(new File(fileConfig.getLocalUrl() + media.getName()),
+                        ObjectUtils.asMap("public_id", FileUtil.getFileName(media.getName()), "folder", "testfiles"));
+                media.setCdnUrl(map.get("secure_url").toString());
+                media.setStatus(UploadStatus.SUCCESS);
+                return service.updateMedia(media, media.getName());
+            }
+        } catch (Exception e) {
+            media.setStatus(UploadStatus.ERROR);
+            e.printStackTrace();
+            return service.updateMedia(media, media.getName());
         }
-        return service.saveMedia(media);
+        throw new StatusException("Status is " + media.getStatus() + " you cannot upload.");
     }
+
 
 }

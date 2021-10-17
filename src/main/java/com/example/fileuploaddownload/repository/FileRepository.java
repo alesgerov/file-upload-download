@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface FileRepository extends JpaRepository<FileTable,Long> {
     @Override
     Optional<FileTable> findById(Long aLong);
+
+    Optional<FileTable> findByLocation(String location);
 }
