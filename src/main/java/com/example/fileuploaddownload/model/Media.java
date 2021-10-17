@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 public class Media {
     private String contentType;
     private String name;
+    private UploadStatus status=UploadStatus.PENDING;
     private String cdnUrl;
     private long size;
     @JsonIgnore

@@ -1,5 +1,6 @@
 package com.example.fileuploaddownload.entity;
 
+import com.example.fileuploaddownload.model.UploadStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,8 @@ public class FileTable {
     private long id;
     private String contentType;
     private String location;
+    @Enumerated
+    private UploadStatus status=UploadStatus.PENDING;
     private String cdnUrl;
     private long size;
 }

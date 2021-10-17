@@ -9,4 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class FileConfig {
     private String localUrl;
+    private String cloudName;
+    private String apiKey;
+    private String apiSecret;
 }
