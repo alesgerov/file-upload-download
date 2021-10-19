@@ -30,7 +30,7 @@ public class FileTable {
     private String contentType;
     private String location;
     @Enumerated
-    private UploadStatus status=UploadStatus.PENDING;
+    private UploadStatus status = UploadStatus.PENDING;
     private String cdnUrl;
     private long size;
 }

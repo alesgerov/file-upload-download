@@ -16,14 +16,14 @@ public enum UploadStatus {
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
-    }
-
     public static UploadStatus from(int value) {
         return Arrays.stream(values())
                 .filter(uploadStatus -> uploadStatus.value == value)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Invalid upload status value " + value));
+    }
+
+    public int getValue() {
+        return value;
     }
 }

@@ -1,11 +1,9 @@
 package com.example.fileuploaddownload.controller;
 
 import com.example.fileuploaddownload.config.FileConfig;
-import com.example.fileuploaddownload.entity.FileTable;
 import com.example.fileuploaddownload.exception.FileNotFoundEXC;
 import com.example.fileuploaddownload.model.Media;
 import com.example.fileuploaddownload.model.ResponseForm;
-import com.example.fileuploaddownload.service.FileService;
 import com.example.fileuploaddownload.service.MediaService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = {"/api"})
@@ -79,7 +76,6 @@ public class MediaController {
             return ResponseEntity.status(409).body(new ResponseForm(409, "File not found", id));
         }
     }
-
 
 
 }

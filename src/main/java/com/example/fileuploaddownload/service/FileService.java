@@ -35,7 +35,7 @@ public class FileService {
     public Media updateMedia(Media media, String name) {
         Optional<FileTable> optional = getFileByName(name);
         if (optional.isEmpty()) return null;
-        FileTable fileTable=optional.get();
+        FileTable fileTable = optional.get();
         if (media.getCdnUrl() != null) {
             fileTable.setCdnUrl(media.getCdnUrl());
         }
